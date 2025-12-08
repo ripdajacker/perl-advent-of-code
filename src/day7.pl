@@ -25,7 +25,6 @@ for (my $rowIdx = 2; $rowIdx <= $#grid; $rowIdx++) {
 
     for (my $colIdx = 0; $colIdx < length($rowStr); $colIdx++) {
         if (substr($rowStr, $colIdx, 1) eq "^" && substr($prevRow, $colIdx, 1) eq "|") {
-            print("Found ^ at idx " . $colIdx . "\n");
             substr($rowStr, $colIdx - 1, 1, "|");
             substr($rowStr, $colIdx + 1, 1, "|");
         }
@@ -48,13 +47,26 @@ for (my $rowIdx = 0; $rowIdx <= $#grid; $rowIdx++) {
     }
 }
 
-for (my $rowIdx = 0; $rowIdx <= $#grid; $rowIdx++) {
-    my $rowStr = $grid[$rowIdx];
-    print($rowStr);
+print("Part 1: " . $part1 . "\n");
+
+## Part 2
+
+my %accum = ();
+for (my $colIdx = 0; $colIdx < length($grid[0]); $colIdx++) {
+    $accum{$colIdx} = 1;
 }
 
-my $part2 = 0;
-print("Part 1: " . $part1 . "\n");
-print("Part 2: " . $part2 . "\n");
+for (my $rowIdx = $#grid; $rowIdx >= 0; $rowIdx--) {
+    my $rowStr = $grid[$rowIdx];
+    for (my $colIdx = 0; $colIdx < length($rowStr); $colIdx++) {
+        if (substr($rowStr, $colIdx, 1) eq "^") {
+            $accum{$colIdx} = $accum{$colIdx - 1} + $accum{$colIdx + 1};
+        }
+    }
+}
+
+my $rootCol = index($grid[0], "S");
+
+print("Part 2: " . $accum{$rootCol} . "\n");
 
 close $info;
