@@ -91,7 +91,7 @@ for (my $i = $#operations; $i >= 0; $i--) {
     my ($start, $end) = columnBoundaries($i);
     printf("Boundaries: %d %d '%d'\n", $start, $end, $i);
 
-    for (my $c = $colWidths[$i] ; $c >= 0; $c--) {
+    for (my $c = $colWidths[$i]; $c >= 0; $c--) {
         my $currentNumber = "";
 
         for my $input (@problems) {
@@ -105,37 +105,28 @@ for (my $i = $#operations; $i >= 0; $i--) {
                 $currentNumber = $currentNumber . $numbers[$c];
             }
 
-            # if (!defined($colResult)) {
-            #     $colResult = $operand;
-            # }
-            # else {
-            #     my $script = $colResult . " " . $operator . " " . $operand;
-            #     $colResult = eval($script);
-            # }
+            print("Current num: " . $currentNumber . "\n");
+
+            if (!defined($colResult) && !(builtin::trim($currentNumber) eq "")) {
+                $colResult = $currentNumber;
+            }
+            elsif (!(builtin::trim($currentNumber) eq "")) {
+                my $script = $colResult . " " . $operator . " " . $currentNumber;
+                $colResult = eval($script);
+            }
         }
 
-        print("Current num: " . $currentNumber . "\n");
-
-        if (!defined($colResult) && !(builtin::trim($currentNumber) eq "")) {
-            $colResult = $currentNumber;
+        if (defined($colResult)) {
+            printf("Result for %d: %d\n", $i, $colResult);
+            $part2 = $part2 + $colResult;
         }
-        elsif(!(builtin::trim($currentNumber) eq "")) {
-            my $script = $colResult . " " . $operator . " " . $currentNumber;
-            $colResult = eval($script);
+        else {
+            printf("Result for %d: %d\n", $i, 0);
         }
+        #    push(@results, $colResult);
     }
 
-    if (defined($colResult)) {
-        printf("Result for %d: %d\n", $i, $colResult);
-        $part2 = $part2 + $colResult;
-    }
-    else {
-        printf("Result for %d: %d\n", $i, 0);
-    }
-    #    push(@results, $colResult);
-}
+    print("Part 1: " . $part1 . "\n");
+    print("Part 2: " . $part2 . "\n");
 
-print("Part 1: " . $part1 . "\n");
-print("Part 2: " . $part2 . "\n");
-
-close $info;
+    close $info;
