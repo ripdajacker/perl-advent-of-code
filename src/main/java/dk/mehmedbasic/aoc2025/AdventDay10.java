@@ -30,8 +30,6 @@ public class AdventDay10 {
                 }
             }
 
-            int state = 0;
-
             int joltageStart = line.indexOf("{");
 
             String switchesString = line.substring(goalEnd + 1, joltageStart).trim();
@@ -43,10 +41,9 @@ public class AdventDay10 {
 
                 String[] split = replace.split(",", -1);
                 long theSwitch = 0;
-                for (int i = 0, splitLength = split.length; i < splitLength; i++) {
-                    String number = split[i];
+                for (String number : split) {
                     int bit = Integer.parseInt(number.trim());
-                    theSwitch |= (1L << (bit));
+                    theSwitch |= 1L << bit;
                 }
 
                 switchesList.add(theSwitch);
@@ -58,11 +55,10 @@ public class AdventDay10 {
                 switches[i] = switchesList.get(i);
             }
 
-            Diagram diagram = new Diagram(goal, state, switches, new byte[0]);
+            Diagram diagram = new Diagram(goal, switches, new byte[0]);
 
-            int xxx = diagram.solvePart1();
-            part1 += xxx;
-            System.out.println(lineNum + "  " + xxx + "  " + diagram);
+            part1 += diagram.solvePart1();
+            System.out.println(lineNum + "  " + diagram.solvePart1() + "  " + diagram);
 
             lineNum++;
         }
@@ -71,54 +67,35 @@ public class AdventDay10 {
     }
 
 
-    record Diagram(long goal, long state, long[] switches, byte[] joltageRequirements) {
+    record Diagram(long goal, long[] switches, byte[] joltageRequirements) {
 
         int solvePart1() {
-            if (goal == state) {
+            if (goal == 0) {
                 return 0;
             }
 
-            int[] result = {Integer.MAX_VALUE};
-            permute(switches, 0, result);
-            return result[0];
-        }
+            int min = Integer.MAX_VALUE;
 
-        // todo memoize known min
-        void permute(long[] arr, int k, int[] oldMin) {
+            int patternCount = 1 << switches.length;
+            for (int pattern = 0; pattern < patternCount; pattern++) {
+                long currentState = 0;
 
-            if (oldMin[0] == 1) {
-                return;
-            }
+                int press = 0;
+                for (int bit = 0; bit < switches.length; bit++) {
+                    boolean buttonSet = (pattern & (1 << bit)) != 0;
+                    if (buttonSet) {
+                        currentState = currentState ^ switches[bit];
+                        press++;
+                    }
 
-            for (int i = k; i < arr.length && oldMin[0] > 1; i++) {
-                long x = arr[i];
-                arr[i] = arr[k];
-                arr[k] = x;
-
-                permute(arr, k + 1, oldMin);
-
-                x = arr[i];
-                arr[i] = arr[k];
-                arr[k] = x;
-            }
-
-
-            if (k == arr.length - 1) {
-                long state = 0;
-                int min = oldMin[0];
-                int end = Math.min(min, arr.length);
-                for (int i = 0; i < end; i++) {
-                    long b = arr[i];
-                    state ^= b;
-
-                    if (state == goal) {
-                        oldMin[0] = Math.min(i + 1, min);
+                    if (currentState == goal) {
+                        min = Math.min(press, min);
                         break;
                     }
                 }
             }
+
+            return min;
         }
     }
-
-
 }
